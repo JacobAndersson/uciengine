@@ -113,19 +113,18 @@ impl GoJob {
         let mut commands: Vec<String> = vec![];
 
         if self.ponderhit {
-            commands.push(format!("{}", "ponderhit"));
-
+            commands.push("ponderhit".to_string());
             return commands;
         }
 
         if self.pondermiss {
-            commands.push(format!("{}", "stop"));
+            commands.push("stop".to_string());
 
             return commands;
         }
 
         if let Some(command) = &self.custom_command {
-            commands.push(format!("{}", command));
+            commands.push(command.to_string());
 
             return commands;
         }
@@ -168,7 +167,6 @@ impl GoJob {
             }
 
             commands.push(go_command);
-
         } else {
             commands.push("isready".to_string());
         }
@@ -177,6 +175,7 @@ impl GoJob {
     }
 
     /// set ponder and return self
+    #[must_use]
     pub fn set_ponder(mut self, value: bool) -> Self {
         self.ponder = value;
 
@@ -184,6 +183,7 @@ impl GoJob {
     }
 
     /// set ponder to true and return self
+    #[must_use]
     pub fn ponder(mut self) -> Self {
         self.ponder = true;
 
@@ -191,6 +191,7 @@ impl GoJob {
     }
 
     /// set ponderhit and return self
+    #[must_use]
     pub fn ponderhit(mut self) -> Self {
         self.ponderhit = true;
 
@@ -198,6 +199,7 @@ impl GoJob {
     }
 
     /// set pondermiss and return self
+    #[must_use]
     pub fn pondermiss(mut self) -> Self {
         self.pondermiss = true;
 
@@ -205,17 +207,19 @@ impl GoJob {
     }
 
     /// set position fen and return self
+    #[must_use]
     pub fn pos_fen<T>(mut self, fen: T) -> Self
     where
         T: core::fmt::Display,
     {
         self.pos_spec = Fen;
-        self.pos_fen = Some(format!("{}", fen).to_string());
+        self.pos_fen = Some(format!("{}", fen));
 
         self
     }
 
     /// set position startpos and return self
+    #[must_use]
     pub fn pos_startpos(mut self) -> Self {
         self.pos_spec = Startpos;
 
@@ -234,6 +238,7 @@ impl GoJob {
     ///                .pos_startpos()
     ///                .pos_moves("e2e4 e7e5 g1f3");
     /// ```
+    #[must_use]
     pub fn pos_moves<T>(mut self, moves: T) -> Self
     where
         T: core::fmt::Display,
@@ -244,6 +249,7 @@ impl GoJob {
     }
 
     /// set uci option as key value pair and return self
+    #[must_use]
     pub fn uci_opt<K, V>(mut self, key: K, value: V) -> Self
     where
         K: core::fmt::Display,
@@ -256,6 +262,7 @@ impl GoJob {
     }
 
     /// set go option as key value pair and return self
+    #[must_use]
     pub fn go_opt<K, V>(mut self, key: K, value: V) -> Self
     where
         K: core::fmt::Display,
@@ -269,6 +276,7 @@ impl GoJob {
     }
 
     /// set time control and return self
+    #[must_use]
     pub fn tc(mut self, tc: Timecontrol) -> Self {
         self.go_options
             .insert("wtime".to_string(), format!("{}", tc.wtime));
@@ -390,7 +398,7 @@ impl UciEngine {
                             {
                                 let mut ai = ai.lock().unwrap();
 
-                                let parse_result = ai.parse(line.to_owned());
+                                let parse_result = ai.parse(&line);
 
                                 if is_bestmove {
                                     ai.done = true;
@@ -496,7 +504,7 @@ impl UciEngine {
                         debug!("recv result {:?}", recv_result);
                     }
 
-                    let parts: Vec<&str> = recv_result.split(" ").collect();
+                    let parts: Vec<&str> = recv_result.split(' ').collect();
 
                     let send_ai: AnalysisInfo;
 
@@ -542,11 +550,7 @@ impl UciEngine {
             info!("spawned uci engine : {}", path);
         }
 
-        std::sync::Arc::new(UciEngine {
-            gtx: gtx,
-            ai: ai,
-            atx: atx,
-        })
+        std::sync::Arc::new(UciEngine { gtx, ai, atx })
     }
 
     /// get analysis info

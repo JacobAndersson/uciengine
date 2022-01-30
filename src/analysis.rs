@@ -67,6 +67,7 @@ macro_rules! gen_str_buff {
 			#[doc = "set"]
 			#[$attr]
 			#[doc = "( value will be trimmed to buffer size )"]
+      #[must_use]
 			pub fn set<T: AsRef<str>>(&mut self, value: T) -> Self {
 				let bytes = value.as_ref().as_bytes();
 
@@ -86,12 +87,14 @@ macro_rules! gen_str_buff {
 			#[doc = "reset"]
 			#[$attr]
 			#[doc = "to empty buffer"]
+      #[must_use]
 			pub fn reset(&mut self) -> Self {
 				self.len = 0;
 
 				*self
 			}
 
+      #[must_use]
 			pub fn set_trim<T: AsRef<str>>(&mut self, value: T, trim: char) -> Self {
 				let value_ref = value.as_ref();
 				let value_string = value_ref.to_string();
@@ -115,6 +118,7 @@ macro_rules! gen_str_buff {
 		#[doc = "implement From<&str> for"]
 		#[$attr]
 		impl std::convert::From<&str> for $type {
+        #[must_use]
 			fn from(value: &str) -> Self {
 				let bytes = value.as_bytes();
 
@@ -633,8 +637,6 @@ impl AnalysisInfo {
                         },
                         ParsingState::Currmove => {
                             self.currmove.set(token);
-
-                            ()
                         }
                         ParsingState::Currmovenumber => match token.parse::<usize>() {
                             Ok(currmovenumber) => self.currmovenumber = currmovenumber,
