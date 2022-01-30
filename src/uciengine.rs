@@ -156,7 +156,7 @@ impl GoJob {
             commands.push(pos_command);
         }
 
-        if (self.should_go) {
+        if self.should_go {
             let mut go_command = "go".to_string();
 
             for (key, value) in &self.go_options {
@@ -518,7 +518,7 @@ impl UciEngine {
                         bestmove: None,
                         ponder: None,
                         ai: send_ai,
-                        is_ready: false,
+                        is_ready: recv_result == "readyok",
                     };
 
                     if parts.len() > 1 {
@@ -583,7 +583,6 @@ impl UciEngine {
         go_job.rtx = Some(rtx);
 
         let send_result = self.gtx.send(go_job);
-
         if log_enabled!(Level::Debug) {
             debug!("send go job result {:?}", send_result);
         }
